@@ -1,0 +1,13 @@
+.next
+node_modules
+.vercel
+dist
+coverage
+*.log
+.DS_Store
+.env
+.env.local
+.env.production
+pnpm-lock.yaml
+yarn.lock
+tsconfig.tsbuildinfo

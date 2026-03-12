@@ -1,0 +1,34 @@
+Maya Hassan
+San Francisco, CA | maya.hassan@gmail.com | (555) 111-2044 | linkedin.com/in/mayahassan | github.com/mayahassan
+
+SUMMARY
+Product-minded software engineer with 3+ years of experience building customer-facing web applications, internal analytics tools, and automation workflows. Strong in TypeScript, React, Node.js, and SQL. Known for improving performance, cleaning up legacy UI systems, and partnering closely with design and product teams to ship measurable improvements.
+
+SKILLS
+TypeScript, JavaScript, React, Next.js, Node.js, Express, PostgreSQL, Prisma, REST APIs, Tailwind CSS, Testing Library, Jest, GitHub Actions, Docker, AWS, Figma
+
+EXPERIENCE
+Frontend Engineer | BrightPath Labs | Jan 2024 - Present
+- Built a new self-service onboarding dashboard in React and Next.js used by 2,500+ customers.
+- Improved Lighthouse performance score from 61 to 90 by reducing bundle size and deferring non-critical widgets.
+- Partnered with product and design to redesign the reporting page, increasing weekly active usage by 18%.
+- Created reusable Tailwind and component patterns that cut new page build time for the team.
+
+Software Engineer | Nova Metrics | Jun 2022 - Dec 2023
+- Developed internal analytics tools with React, Node.js, and PostgreSQL for operations and sales teams.
+- Added automated CSV import validation that reduced manual cleanup work.
+- Wrote API endpoints and dashboard components for subscription reporting and customer health metrics.
+- Helped migrate UI screens from ad hoc CSS to a shared design system.
+
+PROJECTS
+Interview Coach App
+- Built a full-stack interview practice app with Next.js, Gemini API, and PostgreSQL.
+- Added feedback history, prompt templates, and exportable coaching summaries.
+
+Education Dashboard
+- Created a role-based dashboard for instructors and students using React and Express.
+- Designed charts and performance filters for assignment completion data.
+
+EDUCATION
+B.S. in Computer Systems Engineering
+Alexandria University | 2022

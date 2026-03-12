@@ -1,0 +1,2 @@
+We are hiring a Frontend Software Engineer to build modern web experiences for a B2B SaaS analytics platform. You will work in React, TypeScript, and Next.js, collaborate with product and design, improve performance and accessibility, and help shape a reusable design system. Candidates should be comfortable with REST APIs, dashboards, experimentation, metrics, and writing clean, maintainable code. Experience with testing, CI/CD, and data visualization is a plus.
+
