@@ -92,8 +92,17 @@ export async function POST(request: NextRequest) {
 
     let result;
 
-    if (!hasGeminiApiKey() && fields.demoMode) {
-      result = DEMO_ANALYSIS_RESULT;
+    if (!hasGeminiApiKey()) {
+      if (fields.demoMode) {
+        result = DEMO_ANALYSIS_RESULT;
+      } else {
+        result = analyzeResumeLocally({
+          resumeText: finalResumeText,
+          jobDescription
+        });
+        warning =
+          "No Gemini API key is configured, so the app used a grounded local fallback analysis based only on the extracted resume text.";
+      }
     } else {
       try {
         result = await analyzeResumeWithGemini({

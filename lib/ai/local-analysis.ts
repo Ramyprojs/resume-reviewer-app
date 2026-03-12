@@ -161,7 +161,6 @@ export function analyzeResumeLocally({
 }: LocalAnalysisInput): AnalysisResult {
   const sections = getSections(resumeText);
   const header = getSectionText(sections, ["header"]);
-  const summarySection = getSectionText(sections, ["summary", "professional summary", "objective"]);
   const experienceSection = getSectionText(sections, ["experience", "training"]);
   const skillsSection = getSectionText(sections, ["technical skills", "skills"]);
   const educationSection = getSectionText(sections, ["education"]);
@@ -173,7 +172,6 @@ export function analyzeResumeLocally({
   const resumeTextNormalized = normalize(resumeText);
   const headerText = header.join(" ");
   const experienceBullets = getBulletLines(experienceSection);
-  const projectBullets = getBulletLines(projectsSection);
   const metricCount = (resumeText.match(/\b\d+(?:\.\d+)?%?\b/g) || []).length;
   const actionVerbCount = experienceBullets.filter((line) =>
     ACTION_VERBS.some((verb) => normalize(line).startsWith(verb))
