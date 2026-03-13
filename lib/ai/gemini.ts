@@ -15,6 +15,10 @@ interface AnalyzeResumeWithGeminiInput {
   tailoringMode?: boolean;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function normalizeForComparison(value: string) {
   return value
     .toLowerCase()
@@ -110,6 +114,146 @@ function dedupeStrings(values: string[]) {
         .filter(Boolean)
     )
   );
+}
+
+function clampScore(value: unknown) {
+  const parsed =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number.parseFloat(value)
+        : Number.NaN;
+
+  if (!Number.isFinite(parsed)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(parsed)));
+}
+
+function coerceLine(value: unknown, fallback = "") {
+  const normalized = typeof value === "string" ? value.trim() : fallback;
+  return normalized.slice(0, 320).trim() || fallback;
+}
+
+function coerceParagraph(
+  value: unknown,
+  fallback = "Grounded analysis generated from the extracted resume text."
+) {
+  const normalized = typeof value === "string" ? value.trim() : fallback;
+  return normalized.slice(0, 1800).trim() || fallback;
+}
+
+function coerceStringArray(value: unknown, maxItems: number) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return dedupeStrings(
+    value
+      .map((item) => {
+        if (typeof item === "string") {
+          return item;
+        }
+
+        if (typeof item === "number" || typeof item === "boolean") {
+          return String(item);
+        }
+
+        return "";
+      })
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map((item) => item.slice(0, 320).trim())
+      .filter(Boolean)
+  ).slice(0, maxItems);
+}
+
+function coerceAnalysisDraft(raw: unknown, hasJobDescription: boolean) {
+  const draft = isRecord(raw) ? raw : {};
+  const categoryScores = isRecord(draft.categoryScores) ? draft.categoryScores : {};
+  const jobMatchAnalysis = isRecord(draft.jobMatchAnalysis)
+    ? draft.jobMatchAnalysis
+    : {};
+
+  return analysisResultSchema.parse({
+    overallScore: clampScore(draft.overallScore),
+    summary: coerceParagraph(
+      draft.summary,
+      "Grounded analysis generated from the extracted resume text."
+    ),
+    categoryScores: {
+      content: clampScore(categoryScores.content),
+      formatting: clampScore(categoryScores.formatting),
+      ats: clampScore(categoryScores.ats),
+      experience: clampScore(categoryScores.experience),
+      skills: clampScore(categoryScores.skills),
+      grammar: clampScore(categoryScores.grammar),
+      jobMatch: hasJobDescription ? clampScore(categoryScores.jobMatch) : 0
+    },
+    strengths: coerceStringArray(draft.strengths, 8),
+    weaknesses: coerceStringArray(draft.weaknesses, 8),
+    missingSections: coerceStringArray(draft.missingSections, 8),
+    atsIssues: coerceStringArray(draft.atsIssues, 8),
+    keywordSuggestions: coerceStringArray(draft.keywordSuggestions, 10),
+    formattingSuggestions: coerceStringArray(draft.formattingSuggestions, 8),
+    grammarSuggestions: coerceStringArray(draft.grammarSuggestions, 8),
+    bulletPointImprovements: Array.isArray(draft.bulletPointImprovements)
+      ? draft.bulletPointImprovements
+          .map((item) => {
+            const normalizedItem = isRecord(item) ? item : {};
+            const original = coerceLine(normalizedItem.original);
+            const improved = coerceLine(normalizedItem.improved);
+            const reason = coerceLine(normalizedItem.reason);
+
+            if (!original || !improved || !reason) {
+              return null;
+            }
+
+            return {
+              original,
+              improved,
+              reason
+            };
+          })
+          .filter((item): item is NonNullable<typeof item> => Boolean(item))
+          .slice(0, 8)
+      : [],
+    sectionFeedback: Array.isArray(draft.sectionFeedback)
+      ? draft.sectionFeedback
+          .map((item) => {
+            const normalizedItem = isRecord(item) ? item : {};
+            const section = coerceLine(normalizedItem.section, "General");
+            const feedback = coerceParagraph(
+              normalizedItem.feedback,
+              "No grounded section-level explanation was returned for this section."
+            );
+
+            return {
+              section,
+              score: clampScore(normalizedItem.score),
+              feedback,
+              suggestions: coerceStringArray(normalizedItem.suggestions, 6)
+            };
+          })
+          .slice(0, 10)
+      : [],
+    jobMatchAnalysis: {
+      matchedKeywords: hasJobDescription
+        ? coerceStringArray(jobMatchAnalysis.matchedKeywords, 20)
+        : [],
+      missingKeywords: hasJobDescription
+        ? coerceStringArray(jobMatchAnalysis.missingKeywords, 20)
+        : [],
+      fitSummary: hasJobDescription
+        ? coerceParagraph(
+            jobMatchAnalysis.fitSummary,
+            "A target job description was provided, but the AI response did not return a reliable fit summary."
+          )
+        : "No job description provided; role-fit was not evaluated."
+    },
+    finalRecommendations: coerceStringArray(draft.finalRecommendations, 8)
+  });
 }
 
 function getOutputText(outputText: string | undefined) {
@@ -270,9 +414,9 @@ Job description provided: ${hasJobDescription ? "yes" : "no"}
   }
 }
 
-function parseStructuredOutput(rawOutput: string) {
+function parseStructuredOutput(rawOutput: string, hasJobDescription: boolean) {
   const candidate = extractJsonCandidate(rawOutput);
-  return analysisResultSchema.parse(JSON.parse(candidate));
+  return coerceAnalysisDraft(JSON.parse(candidate), hasJobDescription);
 }
 
 export async function analyzeResumeWithGemini(
@@ -285,7 +429,7 @@ export async function analyzeResumeWithGemini(
 
   try {
     return normalizeAnalysis(
-      parseStructuredOutput(firstPass),
+      parseStructuredOutput(firstPass, hasJobDescription),
       hasJobDescription,
       input.resumeText
     );
@@ -298,7 +442,7 @@ export async function analyzeResumeWithGemini(
 
     try {
       return normalizeAnalysis(
-        parseStructuredOutput(repaired),
+        parseStructuredOutput(repaired, hasJobDescription),
         hasJobDescription,
         input.resumeText
       );

@@ -26,18 +26,41 @@ function getStringField(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value : "";
 }
 
-function isQuotaExceededError(error: unknown) {
+function getGeminiFallbackWarning(error: unknown) {
   if (!(error instanceof Error)) {
-    return false;
+    return "Gemini was unavailable, so the app used a grounded local fallback analysis based only on the extracted resume text.";
   }
 
   const normalizedMessage = error.message.toLowerCase();
 
-  return (
+  if (
     normalizedMessage.includes("quota") ||
     normalizedMessage.includes("resource_exhausted") ||
     normalizedMessage.includes("429")
-  );
+  ) {
+    return "Gemini quota is currently exhausted, so the app used a grounded local fallback analysis based only on the extracted resume text.";
+  }
+
+  if (
+    normalizedMessage.includes("invalid analysis payload") ||
+    normalizedMessage.includes("structured analysis payload") ||
+    normalizedMessage.includes("json")
+  ) {
+    return "Gemini returned an invalid structured response, so the app used a grounded local fallback analysis based only on the extracted resume text.";
+  }
+
+  if (
+    normalizedMessage.includes("api key") ||
+    normalizedMessage.includes("permission") ||
+    normalizedMessage.includes("unauthorized") ||
+    normalizedMessage.includes("forbidden") ||
+    normalizedMessage.includes("401") ||
+    normalizedMessage.includes("403")
+  ) {
+    return "Gemini could not be reached with the current API configuration, so the app used a grounded local fallback analysis based only on the extracted resume text.";
+  }
+
+  return "Gemini was unavailable, so the app used a grounded local fallback analysis based only on the extracted resume text.";
 }
 
 export async function POST(request: NextRequest) {
@@ -111,16 +134,11 @@ export async function POST(request: NextRequest) {
           tailoringMode: fields.tailorMode
         });
       } catch (error) {
-        if (!isQuotaExceededError(error)) {
-          throw error;
-        }
-
         result = analyzeResumeLocally({
           resumeText: finalResumeText,
           jobDescription
         });
-        warning =
-          "Gemini quota is currently exhausted, so the app used a grounded local fallback analysis based only on the extracted resume text.";
+        warning = getGeminiFallbackWarning(error);
       }
     }
 
