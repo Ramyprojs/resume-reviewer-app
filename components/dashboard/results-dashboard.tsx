@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { BulletImprovementCard } from "@/components/dashboard/bullet-improvement-card";
 import { CategoryGrid } from "@/components/dashboard/category-grid";
+import { CoachSummaryCard } from "@/components/dashboard/coach-summary-card";
 import { FeedbackListCard } from "@/components/dashboard/feedback-list-card";
 import { JobMatchCard } from "@/components/dashboard/job-match-card";
 import { Badge } from "@/components/ui/badge";
@@ -161,6 +162,24 @@ export function ResultsDashboard({ response }: ResultsDashboardProps) {
       </div>
 
       <CategoryGrid response={response} />
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <CoachSummaryCard
+          title="What this resume is good at"
+          description="A quick recruiter-style summary of the strongest parts of the resume right now."
+          icon={<Trophy className="size-5" />}
+          tone="teal"
+          highlights={response.result.strengths.slice(0, 4)}
+        />
+        <CoachSummaryCard
+          title="What to improve to make it better"
+          description="The highest-impact improvements to make before sending this resume out."
+          icon={<Target className="size-5" />}
+          tone="amber"
+          highlights={response.result.weaknesses.slice(0, 3)}
+          suggestions={response.result.finalRecommendations.slice(0, 4)}
+        />
+      </div>
 
       {response.resumeTextUsed ? (
         <Card className="p-6">
