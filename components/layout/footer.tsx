@@ -9,11 +9,9 @@ export function Footer() {
             AI Resume Reviewer
           </p>
           <p>Portfolio-quality resume analysis with structured AI feedback.</p>
-          <div className="flex flex-wrap gap-2 pt-1">
-            <span className="data-pill px-3 py-1.5 text-xs">Structured scoring</span>
-            <span className="data-pill px-3 py-1.5 text-xs">Resume parsing</span>
-            <span className="data-pill px-3 py-1.5 text-xs">PDF export</span>
-          </div>
+          <p className="pt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            Structured scoring · Resume parsing · PDF export
+          </p>
           <div className="pt-2">
             <p className="text-sm text-brand-ink dark:text-white">
               Made by Ramy Abdelmalak
