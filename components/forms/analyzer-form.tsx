@@ -38,6 +38,13 @@ const loadingMessages = [
   "Drafting targeted improvement suggestions"
 ];
 
+const loadingStageProgress = [18, 42, 74, 92];
+const loadingStageDurations = [1800, 2200, 2600];
+
+function sleep(milliseconds: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+}
+
 const reviewPillars = [
   {
     title: "Structured scoring",
@@ -82,11 +89,12 @@ export function AnalyzerForm() {
   const [demoMode, setDemoMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progressIndex, setProgressIndex] = useState(0);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [loadedFromHistory, setLoadedFromHistory] = useState<string | null>(null);
   const [response, setResponse] = useState<AnalyzeResumeResponse | null>(null);
-  const loadingProgress = ((progressIndex + 1) / loadingMessages.length) * 100;
+  const isFinalizing = isLoading && loadingProgress === 100;
 
   useEffect(() => {
     const historyId = searchParams.get("historyId");
@@ -133,14 +141,32 @@ export function AnalyzerForm() {
   useEffect(() => {
     if (!isLoading) {
       setProgressIndex(0);
+      setLoadingProgress(0);
       return;
     }
 
-    const timer = window.setInterval(() => {
-      setProgressIndex((current) => (current + 1) % loadingMessages.length);
-    }, 1300);
+    setProgressIndex(0);
+    setLoadingProgress(loadingStageProgress[0]);
 
-    return () => window.clearInterval(timer);
+    const timers: number[] = [];
+
+    loadingStageDurations.forEach((duration, index) => {
+      const delay = loadingStageDurations
+        .slice(0, index + 1)
+        .reduce((total, current) => total + current, 0);
+
+      const timer = window.setTimeout(() => {
+        const nextIndex = Math.min(index + 1, loadingMessages.length - 1);
+        setProgressIndex(nextIndex);
+        setLoadingProgress(loadingStageProgress[nextIndex]);
+      }, delay);
+
+      timers.push(timer);
+    });
+
+    return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
   }, [isLoading]);
 
   const handleAnalyze = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -181,6 +207,10 @@ export function AnalyzerForm() {
       }
 
       const parsedResponse = analyzeResumeResponseSchema.parse(body);
+
+      setProgressIndex(loadingMessages.length - 1);
+      setLoadingProgress(100);
+      await sleep(500);
 
       startTransition(() => {
         setResponse(parsedResponse);
@@ -564,15 +594,17 @@ export function AnalyzerForm() {
               </div>
               <h2 className="mt-5 text-3xl">Review in progress</h2>
               <p className="mt-3 max-w-xl">
-                {loadingMessages[progressIndex]}. This usually takes a few moments,
-                depending on file size and model response time.
+                {isFinalizing
+                  ? "Finalizing your dashboard and preparing the results view."
+                  : `${loadingMessages[progressIndex]}. This usually takes a few moments, depending on file size and model response time.`}
               </p>
             </div>
 
             <div className="space-y-4 rounded-[1.75rem] border border-border/80 bg-white/68 p-5 dark:bg-white/5">
               {loadingMessages.map((message, index) => {
-                const isActive = index === progressIndex;
-                const isCompleted = index < progressIndex;
+                const isCompleted =
+                  index < progressIndex || (isFinalizing && index === progressIndex);
+                const isActive = index === progressIndex && !isFinalizing;
 
                 return (
                   <div
