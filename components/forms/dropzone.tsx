@@ -47,15 +47,16 @@ export function FileDropzone({
     <div className="space-y-4">
       <Card
         {...getRootProps()}
-        className={`cursor-pointer border-dashed p-8 transition ${
+        data-click-reactive="true"
+        className={`click-reactive cursor-pointer border-dashed p-8 transition ${
           isDragActive
-            ? "border-brand-teal bg-cyan-50/80 dark:bg-cyan-400/10"
-            : "hover:border-brand-teal/50 hover:bg-brand-sand/40 dark:hover:bg-white/5"
+            ? "border-brand-teal bg-cyan-50/70 dark:bg-cyan-500/10"
+            : "hover:border-brand-teal/30 hover:bg-brand-sand/40 dark:hover:bg-white/5"
         }`}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="flex size-16 items-center justify-center rounded-3xl bg-brand-ink text-white dark:bg-brand-teal dark:text-slate-950">
+          <div className="flex size-16 items-center justify-center rounded-3xl bg-brand-ink text-white dark:bg-white dark:text-slate-950">
             <FileUp className="size-7" />
           </div>
           <h3 className="mt-5 text-2xl">
@@ -65,7 +66,7 @@ export function FileDropzone({
             Upload a PDF or DOCX resume for structured AI analysis. If parsing ever
             fails, you can paste the text manually below.
           </p>
-          <div className="mt-5 rounded-full border border-border bg-white/70 px-4 py-2 text-sm font-semibold text-brand-ink dark:bg-white/5 dark:text-white">
+          <div className="mt-5 rounded-full border border-border bg-white/80 px-4 py-2 text-sm font-semibold text-brand-ink dark:bg-white/5 dark:text-white">
             Supported: PDF, DOCX · Max size: 5 MB
           </div>
         </div>
@@ -99,4 +100,3 @@ export function FileDropzone({
     </div>
   );
 }
-

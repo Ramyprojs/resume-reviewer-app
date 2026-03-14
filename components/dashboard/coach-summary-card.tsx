@@ -31,7 +31,7 @@ export function CoachSummaryCard({
   suggestions = []
 }: CoachSummaryCardProps) {
   return (
-    <Card className="p-6">
+    <Card className="hover-lift p-6">
       <div className="flex items-start gap-4">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
           {icon}

@@ -6,7 +6,7 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "surface-panel surface-gradient mesh-overlay transition-[transform,box-shadow,border-color,background-color] duration-300",
+        "surface-panel surface-gradient transition-[transform,box-shadow,border-color,background-color] duration-300",
         className
       )}
       {...props}

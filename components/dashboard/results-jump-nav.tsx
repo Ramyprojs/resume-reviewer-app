@@ -63,7 +63,8 @@ export function ResultsJumpNav({
           <a
             key={id}
             href={`#${id}`}
-            className="data-pill hover-lift px-3 py-2 text-xs uppercase tracking-[0.18em] text-muted-foreground dark:text-slate-100"
+            data-click-reactive="true"
+            className="click-reactive data-pill hover-lift px-3 py-2 text-xs uppercase tracking-[0.18em] text-muted-foreground dark:text-slate-100"
           >
             <Icon className="size-3.5" />
             {label}

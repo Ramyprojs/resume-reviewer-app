@@ -34,7 +34,7 @@ export function BulletImprovementCard({
   };
 
   return (
-    <Card className="p-6">
+    <Card className="hover-lift p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <h3 className="text-2xl">Suggested Bullet Point Rewrites</h3>
@@ -58,10 +58,13 @@ export function BulletImprovementCard({
           rewrites.map((item, index) => (
             <details
               key={`${item.original}-${index}`}
-              className="rounded-3xl border border-border/80 bg-white/60 p-5 dark:bg-white/5"
+              className="rounded-3xl border border-border/80 bg-white/60 p-5 transition-[transform,border-color,background-color] duration-300 hover:-translate-y-0.5 hover:border-brand-teal/30 dark:bg-white/5"
               open={index === 0}
             >
-              <summary className="cursor-pointer list-none">
+              <summary
+                data-click-reactive="true"
+                className="click-reactive cursor-pointer list-none rounded-2xl"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="flex size-10 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
@@ -125,4 +128,3 @@ export function BulletImprovementCard({
     </Card>
   );
 }
-

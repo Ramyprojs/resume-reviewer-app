@@ -14,11 +14,14 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { ActionRoadmapCard } from "@/components/dashboard/action-roadmap-card";
 import { BulletImprovementCard } from "@/components/dashboard/bullet-improvement-card";
 import { CategoryGrid } from "@/components/dashboard/category-grid";
 import { CoachSummaryCard } from "@/components/dashboard/coach-summary-card";
 import { FeedbackListCard } from "@/components/dashboard/feedback-list-card";
 import { JobMatchCard } from "@/components/dashboard/job-match-card";
+import { ResultsJumpNav } from "@/components/dashboard/results-jump-nav";
+import { ScanOverviewCard } from "@/components/dashboard/scan-overview-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -99,8 +102,16 @@ export function ResultsDashboard({ response }: ResultsDashboardProps) {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-5 xl:grid-cols-[1.2fr_1fr]">
-        <Card className="overflow-hidden p-6 lg:p-8">
+      <ResultsJumpNav
+        hasJobDescription={hasJobDescription}
+        hasResumeText={Boolean(response.resumeTextUsed)}
+      />
+
+      <section
+        id="overview"
+        className="section-anchor grid gap-5 xl:grid-cols-[1.15fr_0.85fr]"
+      >
+        <Card className="hover-lift overflow-hidden p-6 lg:p-8">
           <div className="grid gap-8 lg:grid-cols-[200px_1fr] lg:items-center">
             <div className="flex justify-center">
               <ScoreRing score={response.result.overallScore} />
@@ -116,6 +127,7 @@ export function ResultsDashboard({ response }: ResultsDashboardProps) {
                 </Badge>
                 {response.warning ? <Badge tone="warning">Fallback used</Badge> : null}
               </div>
+
               <div>
                 <h2 className="text-3xl sm:text-4xl">Analysis complete</h2>
                 <p className="mt-3 text-balance">{response.result.summary}</p>
@@ -131,82 +143,129 @@ export function ResultsDashboard({ response }: ResultsDashboardProps) {
                 >
                   {isExporting ? "Preparing PDF..." : "Download PDF"}
                 </Button>
-                <div className="rounded-full border border-border bg-white/70 px-4 py-2 text-sm font-semibold text-brand-ink dark:bg-white/5 dark:text-white">
+                <div className="data-pill">
                   Transparent scoring weights applied server-side
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Strengths surfaced
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-brand-ink dark:text-white">
+                    {response.result.strengths.length}
+                  </p>
+                </div>
+                <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Priority issues
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-brand-ink dark:text-white">
+                    {response.result.weaknesses.length + response.result.atsIssues.length}
+                  </p>
+                </div>
+                <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Rewrites drafted
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-brand-ink dark:text-white">
+                    {response.result.bulletPointImprovements.length}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
-              <Target className="size-5" />
-            </div>
-            <div>
-              <h3 className="text-2xl">Final recommendations</h3>
-              <p>Start here for the highest-impact edits.</p>
-            </div>
-          </div>
+        <ScanOverviewCard response={response} />
+      </section>
 
-          <div className="mt-6 space-y-4">
-            {response.result.finalRecommendations.map((item) => (
-              <div key={item} className="flex gap-3">
-                <span className="mt-2 size-2 shrink-0 rounded-full bg-brand-teal" />
-                <p className="text-sm leading-6">{item}</p>
+      <section id="priorities" className="section-anchor space-y-5">
+        <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+          <Card className="hover-lift p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
+                <Target className="size-5" />
               </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+              <div>
+                <h3 className="text-2xl">Final recommendations</h3>
+                <p>Start here for the highest-impact edits.</p>
+              </div>
+            </div>
 
-      <CategoryGrid response={response} />
+            <div className="mt-6 space-y-4">
+              {response.result.finalRecommendations.map((item) => (
+                <div key={item} className="flex gap-3">
+                  <span className="mt-2 size-2 shrink-0 rounded-full bg-brand-teal" />
+                  <p className="text-sm leading-6">{item}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        <CoachSummaryCard
-          title="What this resume is good at"
-          description="A quick recruiter-style summary of the strongest parts of the resume right now."
-          icon={<Trophy className="size-5" />}
-          tone="teal"
-          highlights={response.result.strengths.slice(0, 4)}
-        />
-        <CoachSummaryCard
-          title="What to improve to make it better"
-          description="The highest-impact improvements to make before sending this resume out."
-          icon={<Target className="size-5" />}
-          tone="amber"
-          highlights={response.result.weaknesses.slice(0, 3)}
-          suggestions={response.result.finalRecommendations.slice(0, 4)}
-        />
-      </div>
+          <CoachSummaryCard
+            title="What to improve to make it better"
+            description="The highest-impact improvements to make before sending this resume out."
+            icon={<Target className="size-5" />}
+            tone="amber"
+            highlights={response.result.weaknesses.slice(0, 3)}
+            suggestions={response.result.finalRecommendations.slice(0, 4)}
+          />
+        </div>
 
-      {response.resumeTextUsed ? (
-        <Card className="p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <ActionRoadmapCard response={response} />
+      </section>
+
+      <section id="scores" className="section-anchor space-y-5">
+        <CategoryGrid response={response} />
+
+        <div className="grid gap-5 xl:grid-cols-2">
+          <CoachSummaryCard
+            title="What this resume is good at"
+            description="A quick recruiter-style summary of the strongest parts of the resume right now."
+            icon={<Trophy className="size-5" />}
+            tone="teal"
+            highlights={response.result.strengths.slice(0, 4)}
+          />
+
+          <Card className="hover-lift p-6">
             <div className="space-y-2">
-              <h3 className="text-2xl">Resume text used for analysis</h3>
-              <p>
-                This is the exact text the parser extracted from your uploaded file,
-                or the manual fallback text if parsing failed.
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-teal">
+                Recruiter impression
+              </p>
+              <h3 className="text-2xl">How this resume reads at a glance</h3>
+              <p className="max-w-2xl">
+                The summary below is meant to feel like a hiring manager&apos;s
+                first-pass impression after skimming the document.
               </p>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={copyResumeText}
-            >
-              Copy text
-            </Button>
-          </div>
 
-          <div className="mt-6 overflow-hidden rounded-3xl border border-border/80 bg-slate-950/95 p-5">
-            <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap font-mono text-sm leading-7 text-slate-100">
-              {response.resumeTextUsed}
-            </pre>
-          </div>
-        </Card>
-      ) : null}
+            <div className="mt-6 rounded-[1.75rem] border border-border/80 bg-white/60 p-5 dark:bg-white/5">
+              <p className="text-sm leading-7">{response.result.summary}</p>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Missing sections
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-brand-ink dark:text-white">
+                  {response.result.missingSections.length}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Keyword opportunities
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-brand-ink dark:text-white">
+                  {response.result.keywordSuggestions.length}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <FeedbackListCard
@@ -266,9 +325,13 @@ export function ResultsDashboard({ response }: ResultsDashboardProps) {
         />
       </div>
 
-      {hasJobDescription ? <JobMatchCard response={response} /> : null}
+      {hasJobDescription ? (
+        <section id="job-match" className="section-anchor">
+          <JobMatchCard response={response} />
+        </section>
+      ) : null}
 
-      <Card className="p-6">
+      <Card className="hover-lift p-6">
         <h3 className="text-2xl">Section-by-section feedback</h3>
         <p className="mt-2">
           Every major section gets an individual score and targeted suggestions.
@@ -298,7 +361,34 @@ export function ResultsDashboard({ response }: ResultsDashboardProps) {
         </div>
       </Card>
 
-      <BulletImprovementCard response={response} />
+      <section id="rewrites" className="section-anchor">
+        <BulletImprovementCard response={response} />
+      </section>
+
+      {response.resumeTextUsed ? (
+        <section id="source-text" className="section-anchor">
+          <Card className="hover-lift p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-2">
+                <h3 className="text-2xl">Resume text used for analysis</h3>
+                <p>
+                  This is the exact text the parser extracted from your uploaded file,
+                  or the manual fallback text if parsing failed.
+                </p>
+              </div>
+              <Button type="button" variant="outline" onClick={copyResumeText}>
+                Copy text
+              </Button>
+            </div>
+
+            <div className="mt-6 overflow-hidden rounded-3xl border border-border/80 bg-slate-950/95 p-5">
+              <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap font-mono text-sm leading-7 text-slate-100">
+                {response.resumeTextUsed}
+              </pre>
+            </div>
+          </Card>
+        </section>
+      ) : null}
     </div>
   );
 }

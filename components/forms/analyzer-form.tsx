@@ -2,9 +2,14 @@
 
 import {
   AlertTriangle,
+  BarChart3,
+  BriefcaseBusiness,
   CheckCircle2,
+  Layers3,
   LoaderCircle,
+  ShieldCheck,
   Sparkles,
+  ScanSearch,
   Wand2
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -33,6 +38,39 @@ const loadingMessages = [
   "Drafting targeted improvement suggestions"
 ];
 
+const reviewPillars = [
+  {
+    title: "Structured scoring",
+    description: "Weighted scoring across content, ATS readiness, grammar, formatting, and role fit.",
+    icon: BarChart3
+  },
+  {
+    title: "Role-targeted guidance",
+    description: "Paste a job description to get sharper keyword gaps and fit analysis.",
+    icon: BriefcaseBusiness
+  },
+  {
+    title: "Grounded resume parsing",
+    description: "The app shows the exact extracted resume text so the output stays auditable.",
+    icon: ShieldCheck
+  }
+] as const;
+
+const outputHighlights = [
+  {
+    title: "Executive-style summary",
+    detail: "A recruiter-friendly overview of where the resume already performs well."
+  },
+  {
+    title: "Improvement roadmap",
+    detail: "Prioritized changes so the candidate knows what to fix first."
+  },
+  {
+    title: "Export-ready report",
+    detail: "Download the analysis as a PDF after the review completes."
+  }
+] as const;
+
 export function AnalyzerForm() {
   const searchParams = useSearchParams();
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -48,6 +86,7 @@ export function AnalyzerForm() {
   const [warning, setWarning] = useState<string | null>(null);
   const [loadedFromHistory, setLoadedFromHistory] = useState<string | null>(null);
   const [response, setResponse] = useState<AnalyzeResumeResponse | null>(null);
+  const loadingProgress = ((progressIndex + 1) / loadingMessages.length) * 100;
 
   useEffect(() => {
     const historyId = searchParams.get("historyId");
@@ -202,8 +241,8 @@ export function AnalyzerForm() {
 
   return (
     <div className="space-y-8">
-      <Card className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr] lg:p-8">
-        <div className="space-y-4">
+      <Card className="hero-panel reveal-up grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr] lg:p-8">
+        <div className="space-y-5">
           <div className="flex flex-wrap gap-3">
             <Badge tone="info">PDF + DOCX uploads</Badge>
             <Badge tone="default">Manual text fallback</Badge>
@@ -215,13 +254,49 @@ export function AnalyzerForm() {
             structured AI review with ATS feedback, category scores, rewrite
             suggestions, and a downloadable report.
           </p>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Review depth
+              </p>
+              <p className="mt-2 text-lg font-semibold text-brand-ink dark:text-white">
+                Recruiter + ATS + rewrite coaching
+              </p>
+            </div>
+            <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                File support
+              </p>
+              <p className="mt-2 text-lg font-semibold text-brand-ink dark:text-white">
+                PDF, DOCX, or manual text
+              </p>
+            </div>
+            <div className="rounded-3xl border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Best for
+              </p>
+              <p className="mt-2 text-lg font-semibold text-brand-ink dark:text-white">
+                Internship, junior, and mid-level resumes
+              </p>
+            </div>
+          </div>
         </div>
 
-        <Card className="grid-overlay p-6">
-          <div className="space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-teal">
-              Built-in workflow
-            </p>
+        <Card className="grid-overlay hover-lift p-6">
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-teal">
+                  Premium workflow
+                </p>
+                <h2 className="mt-2 text-3xl">Built-in review pipeline</h2>
+              </div>
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
+                <Layers3 className="size-5" />
+              </div>
+            </div>
+
             <div className="space-y-4">
               {[
                 "Upload a PDF or DOCX resume",
@@ -234,18 +309,55 @@ export function AnalyzerForm() {
                 </div>
               ))}
             </div>
+
+            <div className="space-y-3 rounded-[1.75rem] border border-border/80 bg-white/60 p-4 dark:bg-white/5">
+              <div className="flex items-center gap-2">
+                <ScanSearch className="size-4 text-brand-teal" />
+                <p className="text-sm font-semibold text-brand-ink dark:text-white">
+                  What the dashboard will surface
+                </p>
+              </div>
+              <div className="space-y-3">
+                {reviewPillars.map(({ title, description, icon: Icon }) => (
+                  <div key={title} className="flex gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
+                      <Icon className="size-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-brand-ink dark:text-white">
+                        {title}
+                      </p>
+                      <p className="text-sm">{description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <Button
               type="button"
               variant="secondary"
               icon={<Sparkles className="size-4" />}
               onClick={loadDemo}
-              className="mt-4 w-full"
+              className="w-full"
             >
               Try demo mode
             </Button>
           </div>
         </Card>
       </Card>
+
+      <div className="reveal-up-delay-1 grid gap-4 lg:grid-cols-3">
+        {outputHighlights.map((item) => (
+          <Card key={item.title} className="hover-lift p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-teal">
+              Included output
+            </p>
+            <h2 className="mt-3 text-2xl">{item.title}</h2>
+            <p className="mt-3">{item.detail}</p>
+          </Card>
+        ))}
+      </div>
 
       {loadedFromHistory ? (
         <Card className="border-brand-teal/30 p-4">
@@ -305,7 +417,7 @@ export function AnalyzerForm() {
         />
 
         <div className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-          <Card className="p-6">
+          <Card className="hover-lift p-6">
             <div className="space-y-2">
               <h2 className="text-2xl">Manual resume text fallback</h2>
               <p>
@@ -322,12 +434,12 @@ export function AnalyzerForm() {
                 setDemoMode(false);
               }}
               placeholder="Paste your resume text here..."
-              className="mt-5 min-h-[280px] w-full rounded-3xl border border-border bg-white/80 p-5 text-sm text-brand-ink placeholder:text-muted-foreground dark:bg-white/5 dark:text-white"
+              className="field-surface mt-5 min-h-[280px] resize-none"
             />
           </Card>
 
           <div className="space-y-6">
-            <Card className="p-6">
+            <Card className="hover-lift p-6">
               <div className="space-y-2">
                 <h2 className="text-2xl">Target job description</h2>
                 <p>
@@ -342,10 +454,10 @@ export function AnalyzerForm() {
                   setDemoMode(false);
                 }}
                 placeholder="Paste the target job description here..."
-                className="mt-5 min-h-[220px] w-full rounded-3xl border border-border bg-white/80 p-5 text-sm text-brand-ink placeholder:text-muted-foreground dark:bg-white/5 dark:text-white"
+                className="field-surface mt-5 min-h-[220px] resize-none"
               />
 
-              <label className="mt-5 flex items-start gap-3 rounded-3xl border border-border bg-white/60 p-4 dark:bg-white/5">
+              <label className="mt-5 flex items-start gap-3 rounded-[1.75rem] border border-border/80 bg-white/72 p-4 transition-colors hover:border-brand-teal/20 dark:bg-white/5">
                 <input
                   type="checkbox"
                   checked={tailorMode}
@@ -364,7 +476,7 @@ export function AnalyzerForm() {
               </label>
             </Card>
 
-            <Card className="p-6">
+            <Card className="hover-lift p-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="flex size-11 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
@@ -382,17 +494,48 @@ export function AnalyzerForm() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="flex-1"
+                    className={`flex-1 justify-between rounded-[1.6rem] px-5 ${
+                      isLoading ? "loading-cta h-auto min-h-[76px] bg-brand-ink text-white hover:bg-brand-ink" : "h-auto min-h-[76px]"
+                    }`}
                     icon={
                       isLoading ? (
-                        <LoaderCircle className="size-4 animate-spin" />
+                        <span className="relative flex size-10 items-center justify-center rounded-2xl bg-white/10 text-white">
+                          <span className="absolute inset-0 rounded-2xl bg-cyan-300/15 animate-pulse" />
+                          <LoaderCircle className="relative z-10 size-4 animate-spin" />
+                        </span>
                       ) : (
-                        <Sparkles className="size-4" />
+                        <span className="flex size-10 items-center justify-center rounded-2xl bg-white/10 text-white dark:bg-slate-900/10 dark:text-current">
+                          <Sparkles className="size-4" />
+                        </span>
                       )
                     }
                     disabled={isLoading}
                   >
-                    {isLoading ? "Analyzing resume..." : "Analyze resume"}
+                    <span className="flex flex-1 items-center justify-between gap-4 text-left">
+                      <span className="flex flex-col">
+                        <span className="text-[15px] font-semibold">
+                          {isLoading ? "Analyzing your resume" : "Analyze resume"}
+                        </span>
+                        <span
+                          className={`text-xs ${
+                            isLoading ? "text-white/70" : "text-white/70 dark:text-slate-500"
+                          }`}
+                        >
+                          {isLoading
+                            ? loadingMessages[progressIndex]
+                            : "Structured ATS + recruiter review"}
+                        </span>
+                      </span>
+                      <span
+                        className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+                          isLoading
+                            ? "border border-white/15 bg-white/10 text-white"
+                            : "border border-white/15 bg-white/10 text-white dark:border-slate-900/10 dark:bg-slate-900/10 dark:text-current"
+                        }`}
+                      >
+                        {isLoading ? "Live" : "AI"}
+                      </span>
+                    </span>
                   </Button>
                   <Button
                     type="button"
@@ -400,6 +543,7 @@ export function AnalyzerForm() {
                     variant="outline"
                     onClick={resetForm}
                     disabled={isLoading}
+                    className="min-h-[76px] rounded-[1.6rem] px-6"
                   >
                     Reset
                   </Button>
@@ -411,21 +555,83 @@ export function AnalyzerForm() {
       </form>
 
       {isLoading ? (
-        <Card className="p-8">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex size-16 items-center justify-center rounded-3xl bg-brand-ink text-white dark:bg-brand-teal dark:text-slate-950">
-              <LoaderCircle className="size-7 animate-spin" />
+        <Card className="hero-panel p-8">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+              <div className="relative flex size-16 items-center justify-center rounded-3xl bg-brand-ink text-white dark:bg-white dark:text-slate-950">
+                <span className="absolute inset-0 rounded-3xl bg-cyan-300/15 animate-pulse" />
+                <LoaderCircle className="relative z-10 size-7 animate-spin" />
+              </div>
+              <h2 className="mt-5 text-3xl">Review in progress</h2>
+              <p className="mt-3 max-w-xl">
+                {loadingMessages[progressIndex]}. This usually takes a few moments,
+                depending on file size and model response time.
+              </p>
             </div>
-            <h2 className="mt-5 text-3xl">Review in progress</h2>
-            <p className="mt-3 max-w-xl">
-              {loadingMessages[progressIndex]}. This usually takes a few moments,
-              depending on file size and model response time.
-            </p>
-            <div className="mt-6 h-2 w-full max-w-xl overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
-              <div
-                className="h-full w-2/3 animate-pulse rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,1),rgba(245,158,11,0.95))]"
-                style={{ transform: `translateX(${progressIndex * 18}px)` }}
-              />
+
+            <div className="space-y-4 rounded-[1.75rem] border border-border/80 bg-white/68 p-5 dark:bg-white/5">
+              {loadingMessages.map((message, index) => {
+                const isActive = index === progressIndex;
+                const isCompleted = index < progressIndex;
+
+                return (
+                  <div
+                    key={message}
+                    className={`flex items-center gap-4 rounded-2xl border px-4 py-3 transition ${
+                      isActive
+                        ? "border-brand-teal/30 bg-brand-teal/10"
+                        : "border-transparent bg-transparent"
+                    }`}
+                  >
+                    <div
+                      className={`flex size-9 items-center justify-center rounded-2xl ${
+                        isCompleted
+                          ? "bg-brand-teal text-white"
+                          : isActive
+                            ? "bg-brand-ink text-white dark:bg-white dark:text-slate-950"
+                            : "bg-brand-sand text-muted-foreground dark:bg-white/10"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <CheckCircle2 className="size-4" />
+                      ) : isActive ? (
+                        <LoaderCircle className="size-4 animate-spin" />
+                      ) : (
+                        <span className="text-xs font-semibold">{index + 1}</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-brand-ink dark:text-white">
+                        {message}
+                      </p>
+                      <p className="text-xs">
+                        {isActive
+                          ? "Current stage"
+                          : isCompleted
+                            ? "Completed"
+                            : "Queued"}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className="pt-2">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Analysis progress
+                  </p>
+                  <p className="text-xs font-semibold text-brand-ink dark:text-white">
+                    {Math.round(loadingProgress)}%
+                  </p>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-200/80 dark:bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-[linear-gradient(90deg,rgba(14,165,233,0.95),rgba(56,189,248,0.95),rgba(125,211,252,0.95))] transition-all duration-500"
+                    style={{ width: `${loadingProgress}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </Card>

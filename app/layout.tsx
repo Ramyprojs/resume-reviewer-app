@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
+import { ClickFeedback } from "@/components/effects/click-feedback";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -28,7 +29,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="relative flex min-h-screen flex-col">
+          <ClickFeedback />
+          <div className="relative z-10 flex min-h-screen flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />

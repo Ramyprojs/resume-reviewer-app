@@ -47,11 +47,27 @@ interface CategoryGridProps {
   response: AnalyzeResumeResponse;
 }
 
+function getScoreDescriptor(score: number) {
+  if (score >= 85) {
+    return "Strong signal";
+  }
+
+  if (score >= 70) {
+    return "Competitive";
+  }
+
+  if (score >= 55) {
+    return "Needs refinement";
+  }
+
+  return "Priority gap";
+}
+
 export function CategoryGrid({ response }: CategoryGridProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {categoryConfig.map(({ key, label, icon: Icon }) => (
-        <Card key={key} className="p-5">
+        <Card key={key} className="hover-lift p-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex size-11 items-center justify-center rounded-2xl bg-brand-sand text-brand-ink dark:bg-white/10 dark:text-white">
@@ -62,7 +78,9 @@ export function CategoryGrid({ response }: CategoryGridProps) {
                   {label}
                 </p>
                 <p className="text-sm">
-                  Weighted at {Math.round(response.weights[key] * 100)}%
+                  {response.weights[key] > 0
+                    ? `Weighted at ${Math.round(response.weights[key] * 100)}%`
+                    : "Not active for this scan"}
                 </p>
               </div>
             </div>
@@ -73,6 +91,11 @@ export function CategoryGrid({ response }: CategoryGridProps) {
           <div className="mt-5">
             <ProgressBar value={response.result.categoryScores[key]} />
           </div>
+          <p className="mt-4 text-sm">
+            {response.weights[key] > 0
+              ? getScoreDescriptor(response.result.categoryScores[key])
+              : "Add a job description to activate role-fit scoring in this category."}
+          </p>
         </Card>
       ))}
     </div>

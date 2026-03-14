@@ -18,7 +18,7 @@ export function ScoreRing({
   return (
     <div
       className={cn(
-        "relative inline-flex items-center justify-center rounded-full border border-white/40 bg-white/60 shadow-soft dark:border-white/10 dark:bg-white/5",
+        "relative inline-flex items-center justify-center rounded-full border border-white/40 bg-white/60 shadow-lg dark:border-white/10 dark:bg-white/5",
         className
       )}
       style={{
