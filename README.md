@@ -249,19 +249,61 @@ If no Gemini API key is configured and the user clicks “Try demo mode,” the 
 
 ## Deployment to Vercel
 
-1. Push the repository to GitHub.
-2. Import the project into Vercel.
-3. Add environment variables in the Vercel project settings:
-   - `GEMINI_API_KEY`
-   - `GOOGLE_MODEL`
-   - `NEXT_PUBLIC_APP_URL`
-4. Deploy.
+The easiest production path is Vercel because the app already uses the Next.js App Router and server routes.
 
-Recommended Vercel settings:
+### Before You Deploy
 
-- Framework preset: Next.js
-- Build command: `npm run build`
+1. Make sure the project builds locally:
+
+   ```bash
+   npm run typecheck
+   npm run lint
+   npm run build
+   ```
+
+2. Push the repository to GitHub.
+
+3. Keep your Gemini key private. Only add it in Vercel project environment settings, never in client-side code.
+
+### Deploy Steps
+
+1. Sign in to Vercel and choose **Add New Project**.
+2. Import your GitHub repository.
+3. Let Vercel detect the framework as **Next.js**.
+4. Add these environment variables in the Vercel project settings:
+
+   ```bash
+   GEMINI_API_KEY=your_real_gemini_api_key
+   GOOGLE_MODEL=gemini-2.5-flash
+   NEXT_PUBLIC_APP_URL=https://your-deployed-domain.vercel.app
+   ```
+
+5. Click **Deploy**.
+6. After the first deployment, open the site and test:
+   - PDF upload
+   - DOCX upload
+   - demo mode
+   - export PDF
+   - job description matching
+
+### Recommended Vercel Settings
+
+- Framework preset: `Next.js`
 - Install command: `npm install`
+- Build command: `npm run build`
+- Output setting: default Next.js output
+
+### Production Checklist
+
+- Add the final production URL to `NEXT_PUBLIC_APP_URL`
+- Confirm Gemini quota and billing are active
+- Test the live `/api/analyze-resume` route with a real resume
+- Make sure the site no longer references localhost anywhere
+- Re-run one final `npm run build` before pushing
+
+### Optional Domain Upgrade
+
+Once the Vercel deployment works, you can attach a custom domain from the Vercel project dashboard so the portfolio link looks more professional on your resume.
 
 ## Local Verification
 
