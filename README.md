@@ -1,34 +1,50 @@
 # AI Resume Reviewer
 
-A production-style full-stack web application that lets users upload a resume in PDF or DOCX format, extract the text server-side, analyze it with Google Gemini, score it with deterministic weights, and review the results in a polished SaaS-style dashboard.
+A production-style full-stack web app that reviews resumes with AI, scores them with transparent weights, and presents ATS-focused feedback in a polished dashboard.
 
-The project is built with Next.js, TypeScript, Tailwind CSS, Zod, `pdf-parse`, `mammoth`, and the official Google Gen AI SDK using strict JSON schema output.
+**Live app:** [resume-reviewer-app-kohl.vercel.app](https://resume-reviewer-app-kohl.vercel.app)  
+**GitHub repo:** [Ramyprojs/resume-reviewer-app](https://github.com/Ramyprojs/resume-reviewer-app)
+
+## Overview
+
+AI Resume Reviewer lets users upload a PDF or DOCX resume, extract the text server-side, analyze it with Google Gemini, and review the results in a structured UI. The app supports job description matching, score breakdowns, rewrite suggestions, PDF export, local scan history, and a grounded fallback analysis when live AI is unavailable.
+
+This project was built to feel like a real SaaS product, not a toy demo. It focuses on:
+
+- clean UX and responsive UI
+- reliable file parsing
+- structured AI output with schema validation
+- transparent scoring logic
+- safe error handling and graceful fallbacks
+- simple Vercel deployment
 
 ## Features
 
-- Resume upload with drag-and-drop support
-- PDF and DOCX text extraction
+- Upload resumes in `PDF` or `DOCX`
 - Manual resume text fallback
-- Optional job description matching and tailoring mode
-- Weighted overall score out of 100
+- Optional job description matching
+- Overall score out of 100
 - Category scores for content, experience, ATS, skills, formatting, grammar, and job match
-- Strengths, weaknesses, missing sections, ATS issues, grammar suggestions, and formatting suggestions
-- Suggested rewritten bullet points with one-click copy
-- Export analysis as a PDF report
-- Dark mode toggle
-- Local history of previous scans
-- Demo mode with built-in sample resume and job description
-- Server-side validation, file size limits, MIME checks, and lightweight rate limiting
+- Strengths, weaknesses, missing sections, ATS issues, keyword suggestions, and formatting suggestions
+- Suggested rewritten bullet points
+- Downloadable PDF report
+- Local history of previous analyses
+- Demo mode with built-in sample content
+- Dark mode
+- Grounded local fallback analysis if Gemini is unavailable
 
 ## Tech Stack
 
-- Frontend: Next.js App Router, React 19, TypeScript
-- Styling: Tailwind CSS
-- AI: Google Gemini API with structured JSON output
-- Parsing: `pdf-parse` for PDF, `mammoth` for DOCX
-- Validation: Zod
-- Export: `pdf-lib`
-- Persistence: Local browser storage for scan history
+- **Framework:** Next.js App Router
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **AI:** Google Gemini API via `@google/genai`
+- **Validation:** Zod
+- **PDF parsing:** `pdf-parse`
+- **DOCX parsing:** `mammoth`
+- **PDF export:** `pdf-lib`
+- **State:** React hooks
+- **Persistence:** browser local storage for history
 
 ## Project Structure
 
@@ -36,289 +52,232 @@ The project is built with Next.js, TypeScript, Tailwind CSS, Zod, `pdf-parse`, `
 .
 ├── app
 │   ├── analyze
-│   │   └── page.tsx
 │   ├── api
 │   │   ├── analyze-resume
-│   │   │   └── route.ts
 │   │   └── export-pdf
-│   │       └── route.ts
 │   ├── history
-│   │   └── page.tsx
-│   ├── error.tsx
 │   ├── globals.css
-│   ├── icon.svg
 │   ├── layout.tsx
-│   ├── loading.tsx
-│   ├── not-found.tsx
 │   └── page.tsx
 ├── components
 │   ├── dashboard
-│   │   ├── bullet-improvement-card.tsx
-│   │   ├── category-grid.tsx
-│   │   ├── feedback-list-card.tsx
-│   │   ├── history-list.tsx
-│   │   ├── job-match-card.tsx
-│   │   └── results-dashboard.tsx
+│   ├── effects
 │   ├── forms
-│   │   ├── analyzer-form.tsx
-│   │   └── dropzone.tsx
 │   ├── layout
-│   │   ├── footer.tsx
-│   │   └── navbar.tsx
 │   ├── providers
-│   │   └── theme-provider.tsx
 │   └── ui
-│       ├── badge.tsx
-│       ├── button.tsx
-│       ├── card.tsx
-│       ├── empty-state.tsx
-│       ├── progress-bar.tsx
-│       ├── score-ring.tsx
-│       ├── section-heading.tsx
-│       └── theme-toggle.tsx
 ├── lib
 │   ├── ai
-│   │   ├── gemini.ts
-│   │   └── prompt.ts
 │   ├── export
-│   │   └── build-analysis-pdf.ts
 │   ├── history
-│   │   └── storage.ts
 │   ├── parsers
-│   │   ├── resume-parser.ts
-│   │   └── text-cleaner.ts
 │   ├── scoring
-│   │   └── weights.ts
 │   ├── utils
-│   │   ├── cn.ts
-│   │   ├── demo-content.ts
-│   │   ├── file.ts
-│   │   ├── http.ts
-│   │   └── rate-limit.ts
 │   └── validators
-│       ├── analysis.ts
-│       └── resume.ts
 ├── public
 │   └── demo
-│       ├── demo-job-description.txt
-│       └── demo-resume.txt
-├── types
-│   ├── history.ts
-│   └── pdf-parse.d.ts
-├── .env.example
-├── eslint.config.mjs
-├── next.config.ts
-├── package.json
-├── postcss.config.mjs
-├── README.md
-├── tailwind.config.ts
-└── tsconfig.json
+└── types
 ```
+
+## Key Files
+
+- API route: [`app/api/analyze-resume/route.ts`](./app/api/analyze-resume/route.ts)
+- Export route: [`app/api/export-pdf/route.ts`](./app/api/export-pdf/route.ts)
+- Landing page: [`app/page.tsx`](./app/page.tsx)
+- Analyzer page: [`app/analyze/page.tsx`](./app/analyze/page.tsx)
+- Main analyzer form: [`components/forms/analyzer-form.tsx`](./components/forms/analyzer-form.tsx)
+- Results dashboard: [`components/dashboard/results-dashboard.tsx`](./components/dashboard/results-dashboard.tsx)
+- Gemini integration: [`lib/ai/gemini.ts`](./lib/ai/gemini.ts)
+- Local fallback analysis: [`lib/ai/local-analysis.ts`](./lib/ai/local-analysis.ts)
+- Prompt template: [`lib/ai/prompt.ts`](./lib/ai/prompt.ts)
+- Resume parser: [`lib/parsers/resume-parser.ts`](./lib/parsers/resume-parser.ts)
+- Scoring logic: [`lib/scoring/weights.ts`](./lib/scoring/weights.ts)
+- Response schema: [`lib/validators/analysis.ts`](./lib/validators/analysis.ts)
 
 ## Getting Started
 
-1. Install dependencies:
+### 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-2. Copy the environment template:
+### 2. Create your local environment file
 
-   ```bash
-   cp .env.example .env.local
-   ```
+```bash
+cp .env.example .env.local
+```
 
-3. Add your Gemini API key to `.env.local`:
+### 3. Add environment variables
 
-   ```bash
-   GEMINI_API_KEY=your_gemini_api_key_here
-   GOOGLE_MODEL=gemini-2.5-flash
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-   ```
+```bash
+GEMINI_API_KEY=your_gemini_api_key_here
+GOOGLE_MODEL=gemini-2.5-flash
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-4. Start the development server:
+### 4. Start the app
 
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
-5. Open [http://localhost:3000](http://localhost:3000).
+Then open [http://localhost:3000](http://localhost:3000).
 
 ## Available Scripts
 
-- `npm run dev` starts the Next.js dev server
-- `npm run build` builds the production app
-- `npm run start` runs the production build locally
-- `npm run lint` runs ESLint
-- `npm run typecheck` runs TypeScript checks
+- `npm run dev` - start the local development server
+- `npm run build` - build the app for production
+- `npm run start` - run the production build locally
+- `npm run lint` - run ESLint
+- `npm run typecheck` - run TypeScript checks
 
-## Resume Parsing Flow
+## How It Works
 
-The parsing pipeline lives in [lib/parsers/resume-parser.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/parsers/resume-parser.ts).
+### Resume Parsing
 
-1. The backend accepts `multipart/form-data` in [app/api/analyze-resume/route.ts](/Users/e3tsamy/Documents/Programming/test_codex/app/api/analyze-resume/route.ts).
-2. The route validates file size and ensures the file extension is `pdf` or `docx`.
+The file parsing flow is handled in [`lib/parsers/resume-parser.ts`](./lib/parsers/resume-parser.ts).
+
+1. The app accepts `multipart/form-data` in [`app/api/analyze-resume/route.ts`](./app/api/analyze-resume/route.ts).
+2. Uploaded files are validated by size and type.
 3. PDF files are parsed with `pdf-parse`.
 4. DOCX files are parsed with `mammoth.extractRawText`.
-5. Extracted text is normalized in [lib/parsers/text-cleaner.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/parsers/text-cleaner.ts).
-6. If parsing fails and the user pasted resume text manually, the route falls back to the pasted text instead of failing hard.
+5. Extracted text is cleaned in [`lib/parsers/text-cleaner.ts`](./lib/parsers/text-cleaner.ts).
 
-## AI Analysis Flow
+### AI Analysis
 
-The AI pipeline is split into a few focused files:
+The AI analysis flow is split across:
 
-- Prompt template: [lib/ai/prompt.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/ai/prompt.ts)
-- Gemini call and fallback repair logic: [lib/ai/gemini.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/ai/gemini.ts)
-- Zod schema plus JSON schema contract: [lib/validators/analysis.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/validators/analysis.ts)
+- [`lib/ai/prompt.ts`](./lib/ai/prompt.ts)
+- [`lib/ai/gemini.ts`](./lib/ai/gemini.ts)
+- [`lib/validators/analysis.ts`](./lib/validators/analysis.ts)
 
-The request flow is:
+The pipeline:
 
-1. Extracted resume text and optional job description are sent to Google Gemini.
-2. The model is instructed to behave like an expert resume reviewer, ATS specialist, recruiter assistant, and career coach.
-3. The model must return JSON only, matching the strict schema used by the frontend.
-4. The backend validates the JSON with Zod.
-5. If the model returns malformed JSON, the backend triggers a second repair pass that converts the raw output into schema-safe JSON.
-6. The backend recalculates the overall score with deterministic server-side weights before returning the final payload.
+1. The cleaned resume text and optional job description are sent to Gemini.
+2. The model is instructed to return JSON only.
+3. The response is validated with Zod before it reaches the UI.
+4. If Gemini fails or returns invalid structured output, the app falls back to a grounded local analysis in [`lib/ai/local-analysis.ts`](./lib/ai/local-analysis.ts).
 
-## Exact Prompt Template
+### Scoring
 
-The exact prompt used by the backend lives in [lib/ai/prompt.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/ai/prompt.ts). The important design goals are:
-
-- never fabricate resume content
-- call out missing information explicitly
-- prefer tactical rewrites over vague advice
-- return JSON only
-- set `jobMatch` to `0` when no job description exists
-
-## Scoring System
-
-The score weights are defined in [lib/scoring/weights.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/scoring/weights.ts).
+Weighted scoring is computed on the server in [`lib/scoring/weights.ts`](./lib/scoring/weights.ts).
 
 When a job description is provided:
 
-- Content quality: 25%
-- Work experience impact: 20%
-- ATS compatibility: 15%
-- Skills relevance: 10%
-- Formatting/readability: 10%
-- Grammar/style: 10%
-- Job match: 10%
+- Content: `25%`
+- Experience: `20%`
+- ATS: `15%`
+- Skills: `10%`
+- Formatting: `10%`
+- Grammar: `10%`
+- Job match: `10%`
 
 When no job description is provided:
 
-- Content quality: 28%
-- Work experience impact: 23%
-- ATS compatibility: 17%
-- Skills relevance: 12%
-- Formatting/readability: 10%
-- Grammar/style: 10%
-- Job match: 0%
-
-This makes the final score transparent and non-random. The model supplies category scores, and the server computes the overall score.
+- Content: `28%`
+- Experience: `23%`
+- ATS: `17%`
+- Skills: `12%`
+- Formatting: `10%`
+- Grammar: `10%`
+- Job match: `0%`
 
 ## API Endpoints
 
-- `POST /api/analyze-resume`
-  - Accepts `resumeFile`, `resumeText`, `jobDescription`, `tailorMode`, and `demoMode`
-  - Returns the structured analysis JSON used by the UI
+### `POST /api/analyze-resume`
 
-- `POST /api/export-pdf`
-  - Accepts a JSON payload with `fileName`, `createdAt`, and `analysis`
-  - Returns a downloadable PDF report
+Accepts:
+
+- `resumeFile`
+- `resumeText`
+- `jobDescription`
+- `tailorMode`
+- `demoMode`
+
+Returns:
+
+- validated structured analysis JSON
+- parsing metadata
+- resume text used for analysis
+- score weights
+- optional warnings when fallback analysis is used
+
+### `POST /api/export-pdf`
+
+Accepts an analysis payload and returns a downloadable PDF report.
 
 ## Demo Mode
 
-The app includes built-in demo content in:
+Demo content lives here:
 
-- [public/demo/demo-resume.txt](/Users/e3tsamy/Documents/Programming/test_codex/public/demo/demo-resume.txt)
-- [public/demo/demo-job-description.txt](/Users/e3tsamy/Documents/Programming/test_codex/public/demo/demo-job-description.txt)
-- [lib/utils/demo-content.ts](/Users/e3tsamy/Documents/Programming/test_codex/lib/utils/demo-content.ts)
+- [`public/demo/demo-resume.txt`](./public/demo/demo-resume.txt)
+- [`public/demo/demo-job-description.txt`](./public/demo/demo-job-description.txt)
+- [`lib/utils/demo-content.ts`](./lib/utils/demo-content.ts)
 
-If no Gemini API key is configured and the user clicks “Try demo mode,” the backend returns a baked-in demo analysis so the app is still usable for portfolio demos.
+If no Gemini API key is configured and demo mode is enabled, the app can still return a portfolio-friendly demo analysis.
 
-## Security and Robustness Notes
+## Security and Robustness
 
-- File uploads are limited to 5 MB
-- Only PDF and DOCX resumes are accepted
-- Text extraction failures surface clear user-facing errors
-- API keys stay server-side only
-- Resume history is stored locally in the browser, not in a remote database
-- A lightweight in-memory rate limiter protects the analysis endpoint
-- Schema validation guards the UI from malformed AI output
+- file uploads limited to 5 MB
+- PDF and DOCX only
+- server-side validation with Zod
+- API keys remain server-side
+- schema validation protects the frontend from malformed AI output
+- local fallback analysis prevents total failure when Gemini is unavailable
+- lightweight in-memory rate limiting on the analysis endpoint
 
-## Deployment to Vercel
+## Deployment
 
-The easiest production path is Vercel because the app already uses the Next.js App Router and server routes.
+### Deploy to Vercel
 
-### Before You Deploy
+1. Push the repo to GitHub.
+2. Import the repository into Vercel.
+3. Add these environment variables in Vercel:
 
-1. Make sure the project builds locally:
+```bash
+GEMINI_API_KEY=your_real_key
+GOOGLE_MODEL=gemini-2.5-flash
+NEXT_PUBLIC_APP_URL=https://your-project-name.vercel.app
+```
 
-   ```bash
-   npm run typecheck
-   npm run lint
-   npm run build
-   ```
-
-2. Push the repository to GitHub.
-
-3. Keep your Gemini key private. Only add it in Vercel project environment settings, never in client-side code.
-
-### Deploy Steps
-
-1. Sign in to Vercel and choose **Add New Project**.
-2. Import your GitHub repository.
-3. Let Vercel detect the framework as **Next.js**.
-4. Add these environment variables in the Vercel project settings:
-
-   ```bash
-   GEMINI_API_KEY=your_real_gemini_api_key
-   GOOGLE_MODEL=gemini-2.5-flash
-   NEXT_PUBLIC_APP_URL=https://your-deployed-domain.vercel.app
-   ```
-
-5. Click **Deploy**.
-6. After the first deployment, open the site and test:
-   - PDF upload
-   - DOCX upload
-   - demo mode
-   - export PDF
-   - job description matching
+4. Deploy.
 
 ### Recommended Vercel Settings
 
 - Framework preset: `Next.js`
 - Install command: `npm install`
 - Build command: `npm run build`
-- Output setting: default Next.js output
 
 ### Production Checklist
 
-- Add the final production URL to `NEXT_PUBLIC_APP_URL`
-- Confirm Gemini quota and billing are active
-- Test the live `/api/analyze-resume` route with a real resume
-- Make sure the site no longer references localhost anywhere
-- Re-run one final `npm run build` before pushing
-
-### Optional Domain Upgrade
-
-Once the Vercel deployment works, you can attach a custom domain from the Vercel project dashboard so the portfolio link looks more professional on your resume.
+- verify `NEXT_PUBLIC_APP_URL` uses the real deployed domain
+- confirm Gemini quota and billing are active
+- test PDF upload, DOCX upload, demo mode, and PDF export
+- run `npm run build` before pushing major changes
 
 ## Local Verification
 
-The project was checked with:
+Recommended checks before committing:
 
 ```bash
 npm run typecheck
 npm run lint
+npm run build
 ```
 
 ## Future Improvements
 
-- Add authentication and private saved reports with a database
-- Add OCR support for image-based PDF resumes
-- Introduce side-by-side resume version comparison
-- Add analytics around most common resume issues
-- Support multiple export formats such as DOCX or Markdown
-- Add recruiter-facing share links for final reports
+- OCR support for image-based resumes
+- side-by-side resume comparison
+- recruiter share links
+- authentication and cloud-saved reports
+- analytics for common resume issues
+- additional export formats such as Markdown or DOCX
+
+## Author
+
+Built by **Ramy Abdelmalak**
+
+- LinkedIn: [ramy-abdelmalak-aa2507177](https://www.linkedin.com/in/ramy-abdelmalak-aa2507177/)
+- GitHub: [Ramyprojs](https://github.com/Ramyprojs)
